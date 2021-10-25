@@ -17,7 +17,7 @@ from src.agents.fish_shoal import FishShoal
 class AgentsFactory(Model):
     def __init__(
         self,
-        population=1000,
+        shoal_population=1000,
         width=100,
         height=100,
         speed=1,
@@ -31,7 +31,7 @@ class AgentsFactory(Model):
         Create a new Flockers model.
 
         Args:
-            population: Number of Boids
+            shoal_population: Number of Boids
             width, height: Size of the space.
             speed: How fast should the Boids move.
             vision: How far around should each Boid look for its neighbors
@@ -39,7 +39,7 @@ class AgentsFactory(Model):
                     keep from any other
             cohere, separate, match: factors for the relative importance of
                     the three drives."""
-        self.population = population
+        self.shoal_population = shoal_population
         self.vision = vision
         self.speed = speed
         self.separation = separation
@@ -50,7 +50,7 @@ class AgentsFactory(Model):
         self.running = True
 
     def make_agents(self):
-        for i in range(self.population):
+        for i in range(self.shoal_population):
             x = self.random.random() * self.space.x_max
             y = self.random.random() * self.space.y_max
             pos = np.array((x, y))
