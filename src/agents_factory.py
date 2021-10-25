@@ -11,17 +11,13 @@ from mesa import Model
 from mesa.space import ContinuousSpace
 from mesa.time import RandomActivation
 
-from .boid import Boid
+from src.agents.fish_shoal import FishShoal
 
 
-class BoidFlockers(Model):
-    """
-    Flocker model class. Handles agent creation, placement and scheduling.
-    """
-
+class AgentsFactory(Model):
     def __init__(
         self,
-        population=100,
+        population=1000,
         width=100,
         height=100,
         speed=1,
@@ -54,15 +50,12 @@ class BoidFlockers(Model):
         self.running = True
 
     def make_agents(self):
-        """
-        Create self.population agents, with random positions and starting headings.
-        """
         for i in range(self.population):
             x = self.random.random() * self.space.x_max
             y = self.random.random() * self.space.y_max
             pos = np.array((x, y))
             velocity = np.random.random(2) * 2 - 1
-            boid = Boid(
+            boid = FishShoal(
                 i,
                 self,
                 pos,
