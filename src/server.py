@@ -14,7 +14,7 @@ def shoal_draw(agent):
 
 boid_canvas = SimpleCanvas(shoal_draw, 500, 500)
 model_params = {
-    "shoal_population": UserSettableParameter("slider", "Tree density", 4, 1, 10, 1),
+    "shoal_population": UserSettableParameter("slider", "Ile ławic?", 4, 1, 20, 1),
     "width": 100,
     "height": 100,
     "speed": 1,
@@ -22,4 +22,4 @@ model_params = {
     "separation": 2,
 }
 
-server = ModularServer(AgentsFactory, [boid_canvas], "Boids", model_params)
+server = ModularServer(AgentsFactory, [boid_canvas], "Sharks", model_params)
