@@ -33,6 +33,7 @@ class FishShoal(Agent):
             cohere=0.025,
             separate=0.25,
             match=0.04,
+            fish_amount=100
     ):
         super().__init__(unique_id, model)
         self.pos = np.array(pos)
@@ -45,7 +46,7 @@ class FishShoal(Agent):
         self.match_factor = match
 
         # liczba ryb w ławicy
-        self.fish_amount = 100
+        self.fish_amount = fish_amount
 
     def step(self):
         neighbors = self.model.space.get_neighbors(self.pos, self.vision, False)

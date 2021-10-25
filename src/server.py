@@ -15,6 +15,8 @@ def shoal_draw(agent):
 boid_canvas = SimpleCanvas(shoal_draw, 500, 500)
 model_params = {
     "shoal_population": UserSettableParameter("slider", "Ile ławic?", 4, 1, 20, 1),
+    "shoal_min_value": UserSettableParameter("slider", "Min. ilość ryb w ławicy", 10, 1, 1000, 1),
+    "shoal_max_value": UserSettableParameter("slider", "Max. ilość ryb w ławicy", 100, 2, 1000, 1),
     "width": 100,
     "height": 100,
     "speed": 1,
