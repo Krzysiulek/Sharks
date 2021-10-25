@@ -1,25 +1,10 @@
-import numpy as np
-
-from mesa import Agent
 import random
-import math
 
-# suspectible (może się zarazić z jakimś prawdopodobieństwiem)
-# infected (zamienia się w removed po kilku krokach)
-# removed
-
-# wykres kazdego typu
-
-# parametry:
-# liczba agentów
-# promień zarażania
-# jak długo są zarażeni zanim przejdą do removed
-# pradopodobieństwo zarażenia
+import numpy as np
+from mesa import Agent
 
 
-# np. 5% całości może być stała.
-
-class FishShoal(Agent):
+class FishShoalAgent(Agent):
 
     def __init__(
             self,
@@ -50,9 +35,18 @@ class FishShoal(Agent):
 
     def step(self):
         neighbors = self.model.space.get_neighbors(self.pos, self.vision, False)
+        print(self.pos)
+        print(self.get_new_velocity())
+        print(self.speed)
+        print(self.get_new_velocity() * self.speed)
+        print(self.pos + self.get_new_velocity())
+        print()
+        self.velocity /= np.linalg.norm(self.velocity)
+
         new_pos = self.pos + self.get_new_velocity() * self.speed
         self.model.space.move_agent(self, new_pos)
 
+    # todo ruszanie po plaszy jest zepsute dla speed > 1
     def get_new_velocity(self):
         # todo jesli rekin blisko - uciekaj
         start_range = -0.5
@@ -65,7 +59,6 @@ class FishShoal(Agent):
         y_velocity = self.get_value_between(-1, 1, y_velocity)
 
         return [x_velocity, y_velocity]
-
 
     def get_value_between(self, min_value: float, max_value: float, value: float):
         return min(max_value, max(min_value, value))
