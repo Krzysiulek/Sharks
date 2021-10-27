@@ -39,9 +39,9 @@ model_params = {
     "shoal_max_value": UserSettableParameter("slider", "Max. ilość ryb w ławicy", 100, 2, 1000, 1),
 
     "sharks_population": UserSettableParameter("slider", "Ile rekinów?", 4, 1, 100, 1),
+    "shark_speed": UserSettableParameter("slider", "Szybkość rekina", 2, 1, 25, 1),
     "width": 250,
     "height": 250,
-    "speed": 1,
     "vision": 10,
     "separation": 2,
 }

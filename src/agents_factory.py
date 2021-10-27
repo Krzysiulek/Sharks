@@ -23,9 +23,9 @@ class AgentsFactory(Model):
         shoal_min_value=1,
         shoal_max_value=2,
         sharks_population=1,
+        shark_speed=1,
         width=100,
         height=100,
-        speed=1,
         vision=10,
         separation=2,
         cohere=0.025,
@@ -40,9 +40,9 @@ class AgentsFactory(Model):
 
         # sharks
         self.sharks_population = sharks_population
+        self.shark_speed = shark_speed
 
         self.vision = vision
-        self.speed = speed
         self.separation = separation
         self.schedule = RandomActivation(self)
         self.space = ContinuousSpace(width, height, True)
@@ -90,7 +90,7 @@ class AgentsFactory(Model):
                 self.unique_id_iterator,
                 self,
                 pos,
-                self.speed,
+                self.shark_speed,
                 velocity,
                 self.vision,
             )
