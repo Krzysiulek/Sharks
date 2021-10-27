@@ -33,7 +33,6 @@ def shark_draw(agent):
 boid_canvas = SimpleCanvas(draw_agent, 500, 500)
 model_params = {
     "shoal_population": UserSettableParameter("slider", "Ile ławic?", 4, 1, 20, 1),
-    # todo ruszanie po plaszy jest zepsute dla speed > 1
     "shoal_speed": UserSettableParameter("slider", "Szybkość ławicy", 1, 1, 25, 1),
     "shoal_min_value": UserSettableParameter("slider", "Min. ilość ryb w ławicy", 10, 1, 1000, 1),
     "shoal_max_value": UserSettableParameter("slider", "Max. ilość ryb w ławicy", 100, 2, 1000, 1),
