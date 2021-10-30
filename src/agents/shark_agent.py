@@ -7,7 +7,6 @@ from src.agents.swimming_service import get_new_random_velocity, get_new_positio
 from src.utils.fish_shoal_utils import get_fish_r
 
 MAX_LIFE_AMOUNT = 100
-SHARK_STUFFED_LIFE_AMOUNT = 90  # moze jednak wyjebac to
 HUNGER_LEVEL = 50  # musi się triggerować to coś. Jak < LEVEL wtedy flaga is hungry na true
 ITERATION_LIFE_DECREASE = 1
 EATEN_FISH_LIFE_GAIN = 4
@@ -29,7 +28,9 @@ class SharkAgent(Agent):
         self.velocity = velocity
         self.blood_vision = blood_vision
         self.fish_vision = fish_vision
-        self.life_amount = 100
+
+        self.life_amount = MAX_LIFE_AMOUNT
+        self.hungry = False
 
         self.fish_to_eat = None
         self.prev_position = None
@@ -37,10 +38,15 @@ class SharkAgent(Agent):
     def step(self):
         self.fish_to_eat = None
         new_pos = self.pos
+        self.check_is_hungry()
+
+        if self.is_dead():
+            return
+
         movement_decision = self.get_movement_decision()
 
         if movement_decision is SharkMovementDecision.EAT_FISH and self.fish_to_eat.fish_amount > 0:
-            self.fish_to_eat.fish_amount -= 1
+            self.eat_fish()
         elif movement_decision is SharkMovementDecision.MOVE_TO_BLOOD:
             # płyń do najbliższej krwi
             pass
@@ -72,11 +78,11 @@ class SharkAgent(Agent):
         is_fish_in_vision = len(fish_neighs) > 0
         is_blood_in_vision = len(self.get_neighbors_fish(self.blood_vision)) > 0
 
-        if is_fish_eatable:
+        if self.hungry and is_fish_eatable:
             return SharkMovementDecision.EAT_FISH
-        elif is_fish_in_vision:
+        elif self.hungry and is_fish_in_vision:
             return SharkMovementDecision.MOVE_TO_FISH
-        elif is_blood_in_vision and False: # todo
+        elif self.hungry and is_blood_in_vision and False: # todo
             return SharkMovementDecision.MOVE_TO_BLOOD
         else:
             return SharkMovementDecision.MOVE_RANDOMLY
@@ -84,3 +90,25 @@ class SharkAgent(Agent):
     def get_neighbors_fish(self, vision):
         neighs = self.model.space.get_neighbors(self.pos, vision, False)
         return [x for x in neighs if type(x) is FishShoalAgent and x.fish_amount > 0]
+
+    def check_is_hungry(self):
+        self.life_amount -= ITERATION_LIFE_DECREASE
+
+        if self.life_amount < HUNGER_LEVEL:
+            self.hungry = True
+
+        if self.life_amount >= MAX_LIFE_AMOUNT:
+            self.hungry = False
+
+    def is_dead(self):
+        if self.life_amount <= 0:
+            self.model.space.remove_agent(self)
+            self.model.schedule.remove(self)
+            return True
+
+        return False
+
+
+    def eat_fish(self):
+        self.life_amount += EATEN_FISH_LIFE_GAIN
+        self.fish_to_eat.fish_amount -= 1
