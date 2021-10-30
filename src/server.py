@@ -1,5 +1,6 @@
 from mesa.visualization.ModularVisualization import ModularServer
 from mesa.visualization.UserParam import UserSettableParameter
+from mesa.visualization.modules import ChartModule
 
 from src.agents_factory import AgentsFactory
 from .SimpleContinuousModule import SimpleCanvas
@@ -34,7 +35,7 @@ def shark_draw(agent):
 boid_canvas = SimpleCanvas(draw_agent, 500, 500)
 model_params = {
     # shoal
-    "shoal_population": UserSettableParameter("slider", "Ile ławic?", 4, 1, 20, 1),
+    "shoal_population": UserSettableParameter("slider", "Ile ławic?", 4, 1, 100, 1),
     "shoal_speed": UserSettableParameter("slider", "Szybkość ławicy", 1, 1, 25, 1),
     "shoal_min_value": UserSettableParameter("slider", "Min. ilość ryb w ławicy", 10, 1, 1000, 1),
     "shoal_max_value": UserSettableParameter("slider", "Max. ilość ryb w ławicy", 100, 2, 1000, 1),
@@ -50,4 +51,14 @@ model_params = {
     "separation": 2,
 }
 
-server = ModularServer(AgentsFactory, [boid_canvas], "Sharks", model_params)
+fish_chart = ChartModule(
+    [
+        {"Label": "Fish", "Color": "#00BFB2"},
+    ],
+)
+sharks_chart = ChartModule(
+    [
+        {"Label": "Sharks", "Color": "#4D5C9E"},
+    ],
+)
+server = ModularServer(AgentsFactory, [boid_canvas, fish_chart, sharks_chart], "Sharks", model_params)

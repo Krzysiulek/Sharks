@@ -7,6 +7,7 @@ Uses numpy arrays to represent vectors.
 
 import numpy as np
 from mesa import Model
+from mesa.datacollection import DataCollector
 from mesa.space import ContinuousSpace
 from mesa.time import RandomActivation
 
@@ -52,10 +53,17 @@ class AgentsFactory(Model):
         self.separation = separation
         self.schedule = RandomActivation(self)
         self.space = ContinuousSpace(width, height, True)
+        self.datacollector = DataCollector(
+            {
+                "Fish": lambda m: self.get_all_fish_amount(),
+                "Sharks": lambda m: self.get_all_sharks_amount(),
+            }
+        )
         self.factors = dict(cohere=cohere, separate=separate, match=match)
 
         self.unique_id_iterator = 0
         self.make_agents()
+        self.datacollector.collect(self)
         self.running = True
 
     def make_agents(self):
@@ -102,3 +110,14 @@ class AgentsFactory(Model):
 
     def step(self):
         self.schedule.step()
+        self.datacollector.collect(self)
+
+    def get_all_fish_amount(self):
+        neighs = self.space.get_neighbors([0, 0], 999999, True)
+        fishes = [x for x in neighs if type(x) is FishShoalAgent and x.fish_amount > 0]
+        return float(sum([item.fish_amount for item in fishes]))
+
+    def get_all_sharks_amount(self):
+        neighs = self.space.get_neighbors([0, 0], 999999, True)
+        fishes = [x for x in neighs if type(x) is SharkAgent]
+        return len(fishes)
