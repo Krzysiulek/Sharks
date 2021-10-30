@@ -22,13 +22,19 @@ class AgentsFactory(Model):
                  shoal_max_value=2,
                  sharks_population=1,
                  shark_speed=1,
+                 shark_blood_vision=1,
+                 shark_fish_vision=1,
                  width=100,
                  height=100,
-                 vision=10,
+                 vision=100,
                  separation=2,
                  cohere=0.025,
                  separate=0.25,
                  match=0.04):
+        global AREA_HEIGHT, AREA_WIDTH
+        AREA_HEIGHT = height
+        AREA_WIDTH = width
+
         # shoal
         self.shoal_population = shoal_population
         self.shoal_min_value = shoal_min_value
@@ -38,6 +44,8 @@ class AgentsFactory(Model):
         # sharks
         self.sharks_population = sharks_population
         self.shark_speed = shark_speed
+        self.shark_blood_vision = shark_blood_vision
+        self.shark_fish_vision = shark_fish_vision
 
         # todo do posprzątania
         self.vision = vision
@@ -87,7 +95,8 @@ class AgentsFactory(Model):
                                pos,
                                self.shark_speed,
                                velocity,
-                               self.vision)
+                               self.shark_blood_vision,
+                               self.shark_fish_vision)
             self.space.place_agent(shark, pos)
             self.schedule.add(shark)
 
