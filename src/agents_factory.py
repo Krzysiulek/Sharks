@@ -70,45 +70,17 @@ class AgentsFactory(Model):
         self.make_shoals()
         self.make_sharks()
 
-    # todo ladniej to zrobic, bo straszy ta funkcja i kolejna
+
     def make_shoals(self):
         for _ in range(self.shoal_population):
-            self.unique_id_iterator += 1
-            x = self.random.random() * self.space.x_max
-            y = self.random.random() * self.space.y_max
-            pos = np.array((x, y))
-            velocity = np.random.random(2) * 2 - 1
-            fish_amount = np.random.randint(low=self.shoal_min_value, high=self.shoal_max_value, size=1)[0]
-            shoal_agent = FishShoalAgent(self.unique_id_iterator,
-                                         self,
-                                         pos,
-                                         self.shoal_speed,
-                                         velocity,
-                                         self.vision,
-                                         self.separation,
-                                         **self.factors,
-                                         fish_amount=fish_amount)
-            self.space.place_agent(shoal_agent, pos)
-            self.schedule.add(shoal_agent)
+            self.create_new_shoal()
 
     def make_sharks(self):
         for _ in range(self.sharks_population):
-            self.unique_id_iterator += 1
-            x = self.random.random() * self.space.x_max
-            y = self.random.random() * self.space.y_max
-            pos = np.array((x, y))
-            velocity = np.random.random(2) * 2 - 1
-            shark = SharkAgent(self.unique_id_iterator,
-                               self,
-                               pos,
-                               self.shark_speed,
-                               velocity,
-                               self.shark_blood_vision,
-                               self.shark_fish_vision)
-            self.space.place_agent(shark, pos)
-            self.schedule.add(shark)
+            self.create_new_shark()
 
     def step(self):
+        self.reproduce_shark()
         self.schedule.step()
         self.datacollector.collect(self)
 
@@ -121,3 +93,42 @@ class AgentsFactory(Model):
         neighs = self.space.get_neighbors([0, 0], 999999, True)
         fishes = [x for x in neighs if type(x) is SharkAgent]
         return len(fishes)
+
+    def reproduce_shark(self):
+        pass
+
+    def create_new_shark(self):
+        self.unique_id_iterator += 1
+        x = self.random.random() * self.space.x_max
+        y = self.random.random() * self.space.y_max
+        pos = np.array((x, y))
+        shark = SharkAgent(unique_id=self.unique_id_iterator,
+                           model=self,
+                           pos=pos,
+                           speed=self.shark_speed,
+                           velocity=np.random.random(2) * 2 - 1,
+                           blood_vision=self.shark_blood_vision,
+                           fish_vision=self.shark_fish_vision)
+        self.space.place_agent(shark, pos)
+        self.schedule.add(shark)
+
+    def create_new_shoal(self):
+        self.unique_id_iterator += 1
+        x = self.random.random() * self.space.x_max
+        y = self.random.random() * self.space.y_max
+        pos = np.array((x, y))
+        velocity = np.random.random(2) * 2 - 1
+        fish_amount = np.random.randint(low=self.shoal_min_value, high=self.shoal_max_value, size=1)[0]
+        # todo wywalic factors
+        shoal_agent = FishShoalAgent(self.unique_id_iterator,
+                                     self,
+                                     pos,
+                                     self.shoal_speed,
+                                     velocity,
+                                     self.vision,
+                                     self.separation,
+                                     **self.factors,
+                                     fish_amount=fish_amount)
+        self.space.place_agent(shoal_agent, pos)
+        self.schedule.add(shoal_agent)
+
