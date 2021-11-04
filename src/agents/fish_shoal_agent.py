@@ -15,9 +15,6 @@ class FishShoalAgent(Agent):
                  velocity,
                  vision,
                  separation,
-                 cohere=0.025,
-                 separate=0.25,
-                 match=0.04,
                  fish_amount=100):
         super().__init__(unique_id, model)
         self.pos = np.array(pos)
@@ -25,9 +22,6 @@ class FishShoalAgent(Agent):
         self.velocity = velocity
         self.vision = vision
         self.separation = separation
-        self.cohere_factor = cohere
-        self.separate_factor = separate
-        self.match_factor = match
 
         # liczba ryb w ławicy
         self.fish_amount = fish_amount

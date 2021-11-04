@@ -10,6 +10,7 @@ from mesa import Model
 from mesa.datacollection import DataCollector
 from mesa.space import ContinuousSpace
 from mesa.time import RandomActivation
+import random
 
 from src.agents.fish_shoal_agent import FishShoalAgent
 from src.agents.shark_agent import SharkAgent
@@ -28,10 +29,7 @@ class AgentsFactory(Model):
                  width=100,
                  height=100,
                  vision=100,
-                 separation=2,
-                 cohere=0.025,
-                 separate=0.25,
-                 match=0.04):
+                 separation=2):
         global AREA_HEIGHT, AREA_WIDTH
         AREA_HEIGHT = height
         AREA_WIDTH = width
@@ -57,9 +55,9 @@ class AgentsFactory(Model):
             {
                 "Fish": lambda m: self.get_all_fish_amount(),
                 "Sharks": lambda m: self.get_all_sharks_amount(),
+                "Shoal": lambda m: self.get_all_shoal_amount(),
             }
         )
-        self.factors = dict(cohere=cohere, separate=separate, match=match)
 
         self.unique_id_iterator = 0
         self.make_agents()
@@ -81,6 +79,7 @@ class AgentsFactory(Model):
 
     def step(self):
         self.reproduce_shark()
+        self.reproduce_new_shoal()
         self.schedule.step()
         self.datacollector.collect(self)
 
@@ -89,13 +88,26 @@ class AgentsFactory(Model):
         fishes = [x for x in neighs if type(x) is FishShoalAgent and x.fish_amount > 0]
         return float(sum([item.fish_amount for item in fishes]))
 
+    def get_all_shoal_amount(self):
+        neighs = self.space.get_neighbors([0, 0], 999999, True)
+        fishes = [x for x in neighs if type(x) is FishShoalAgent and x.fish_amount > 0]
+        return len(fishes)
+
     def get_all_sharks_amount(self):
         neighs = self.space.get_neighbors([0, 0], 999999, True)
         fishes = [x for x in neighs if type(x) is SharkAgent]
         return len(fishes)
 
     def reproduce_shark(self):
-        pass
+        reproduction_rate = 0.005
+        for _ in range(0, self.get_all_sharks_amount()):
+            if random.random() <= reproduction_rate:
+                self.create_new_shark()
+
+    def reproduce_new_shoal(self):
+        reproduction_rate = 0.005
+        if random.random() <= reproduction_rate:
+            self.create_new_shoal()
 
     def create_new_shark(self):
         self.unique_id_iterator += 1
@@ -127,7 +139,6 @@ class AgentsFactory(Model):
                                      velocity,
                                      self.vision,
                                      self.separation,
-                                     **self.factors,
                                      fish_amount=fish_amount)
         self.space.place_agent(shoal_agent, pos)
         self.schedule.add(shoal_agent)

@@ -61,4 +61,9 @@ sharks_chart = ChartModule(
         {"Label": "Sharks", "Color": "#4D5C9E"},
     ],
 )
-server = ModularServer(AgentsFactory, [boid_canvas, fish_chart, sharks_chart], "Sharks", model_params)
+shoal_chart = ChartModule(
+    [
+        {"Label": "Shoal", "Color": "#00BFB2"},
+    ],
+)
+server = ModularServer(AgentsFactory, [boid_canvas, fish_chart, sharks_chart, shoal_chart], "Sharks", model_params)
