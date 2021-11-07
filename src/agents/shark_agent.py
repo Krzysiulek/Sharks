@@ -2,8 +2,8 @@ import numpy as np
 from mesa import Agent
 
 from src.agents.fish_shoal_agent import FishShoalAgent
-from src.agents.shark_movement_decision import SharkMovementDecision
-from src.agents.swimming_service import get_new_random_velocity, get_new_position_to_object, get_new_random_position
+from src.utils.shark_movement_decision import SharkMovementDecision
+from src.utils.swimming_service import get_new_position_to_object, get_new_random_position
 from src.utils.fish_shoal_utils import get_fish_r
 
 MAX_LIFE_AMOUNT = 100

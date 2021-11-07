@@ -5,6 +5,7 @@ from mesa.visualization.modules import ChartModule
 from src.agents_factory import AgentsFactory
 from .SimpleContinuousModule import SimpleCanvas
 from .agents.fish_shoal_agent import FishShoalAgent
+from .agents.pilot_fish_agent import PilotFishAgent
 from .agents.shark_agent import SharkAgent
 from .utils.fish_shoal_utils import get_fish_r
 
@@ -14,21 +15,28 @@ def draw_agent(agent):
         return shoal_draw(agent)
     elif type(agent) is SharkAgent:
         return shark_draw(agent)
+    elif type(agent) is PilotFishAgent:
+        return pilot_draw(agent)
+
 
 def shoal_draw(agent):
-    return {
-        "Shape": "circle",
-        "r": get_fish_r(agent.fish_amount),
-        "Filled": "true",
-        "Color": "#00BFB2"
-    }
+    return draw_circle(r=get_fish_r(agent.fish_amount),
+                       color="#00BFB2")
+
 
 def shark_draw(agent):
+    return draw_circle(r=3, color="#4D5C9E")
+
+def pilot_draw(agent):
+    return draw_circle(r=1, color="#d12802")
+
+
+def draw_circle(r, color):
     return {
         "Shape": "circle",
-        "r": 1,
+        "r": r,
         "Filled": "true",
-        "Color": "#4D5C9E"
+        "Color": color
     }
 
 

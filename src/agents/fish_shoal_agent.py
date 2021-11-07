@@ -2,7 +2,7 @@ import numpy as np
 from mesa import Agent
 import random
 
-from src.agents.swimming_service import get_new_random_velocity
+from src.utils.swimming_service import get_new_random_velocity
 
 
 class FishShoalAgent(Agent):

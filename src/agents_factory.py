@@ -13,6 +13,7 @@ from mesa.time import RandomActivation
 import random
 
 from src.agents.fish_shoal_agent import FishShoalAgent
+from src.agents.pilot_fish_agent import PilotFishAgent
 from src.agents.shark_agent import SharkAgent
 
 
@@ -46,6 +47,12 @@ class AgentsFactory(Model):
         self.shark_blood_vision = shark_blood_vision
         self.shark_fish_vision = shark_fish_vision
 
+        # pilots
+        self.pilot_speed = 1
+        self.pilot_vision = 40
+        self.pilots_population = 30
+
+
         # todo do posprzątania
         self.vision = vision
         self.separation = separation
@@ -67,6 +74,7 @@ class AgentsFactory(Model):
     def make_agents(self):
         self.make_shoals()
         self.make_sharks()
+        self.make_pilots()
 
 
     def make_shoals(self):
@@ -76,6 +84,10 @@ class AgentsFactory(Model):
     def make_sharks(self):
         for _ in range(self.sharks_population):
             self.create_new_shark()
+
+    def make_pilots(self):
+        for _ in range(self.pilots_population):
+            self.create_new_pilot_fish()
 
     def step(self):
         self.reproduce_shark()
@@ -143,3 +155,15 @@ class AgentsFactory(Model):
         self.space.place_agent(shoal_agent, pos)
         self.schedule.add(shoal_agent)
 
+    def create_new_pilot_fish(self):
+        self.unique_id_iterator += 1
+        x = self.random.random() * self.space.x_max
+        y = self.random.random() * self.space.y_max
+        pos = np.array((x, y))
+        pilot_agent = PilotFishAgent(unique_id=self.unique_id_iterator,
+                                     model=self,
+                                     pos=pos,
+                                     speed=self.pilot_speed,
+                                     vision=self.pilot_vision)
+        self.space.place_agent(pilot_agent, pos)
+        self.schedule.add(pilot_agent)
