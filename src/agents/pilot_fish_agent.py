@@ -24,7 +24,6 @@ class PilotFishAgent(Agent):
 
     def step(self):
         has_shark_friend = self.shark_friend_id is not None
-        print("Shark id: " + str(self.shark_friend_id))
 
         if has_shark_friend:
             my_sharks = self.get_my_sharks(500)
