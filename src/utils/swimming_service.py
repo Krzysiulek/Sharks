@@ -1,4 +1,3 @@
-# todo metody dla rekina, przynawka, ławicy
 import random, math
 
 

@@ -46,7 +46,6 @@ class SharkAgent(Agent):
 
         if movement_decision is SharkMovementDecision.EAT_FISH and self.fish_to_eat.fish_amount > 0:
             self.eat_fish()
-            self.give_food_to_all_my_pilots()
         elif movement_decision is SharkMovementDecision.MOVE_TO_BLOOD:
             # płyń do najbliższej krwi
             pass
@@ -99,8 +98,6 @@ class SharkAgent(Agent):
         return [x for x in neighs if type(x) is PilotFishAgent]
 
     def check_is_hungry(self):
-        # todo zmniejszaj proporcjonalnie do ilości pilotow
-
         life_descrease = ITERATION_LIFE_DECREASE - ITERATION_LIFE_DECREASE * self.my_pilots_amount / 5
         self.life_amount -= max(life_descrease, 0.1)
 
@@ -116,10 +113,6 @@ class SharkAgent(Agent):
     def eat_fish(self):
         self.life_amount += EATEN_FISH_LIFE_GAIN
         self.fish_to_eat.fish_amount -= 1
-
-    def give_food_to_all_my_pilots(self):
-        # todo
-        pass
 
     def remove_myself(self):
         self.model.space.remove_agent(self)
