@@ -27,6 +27,8 @@ class AgentsFactory(Model):
                  shark_speed=1,
                  shark_blood_vision=1,
                  shark_fish_vision=1,
+                 pilot_vision=1,
+                 pilots_population=1,
                  width=100,
                  height=100,
                  vision=100,
@@ -48,10 +50,9 @@ class AgentsFactory(Model):
         self.shark_fish_vision = shark_fish_vision
 
         # pilots
-        self.pilot_speed = 1
-        self.pilot_vision = 40
-        self.pilots_population = 30
-
+        self.pilot_speed = shark_speed
+        self.pilot_vision = pilot_vision
+        self.pilots_population = pilots_population
 
         # todo do posprzątania
         self.vision = vision
@@ -63,6 +64,7 @@ class AgentsFactory(Model):
                 "Fish": lambda m: self.get_all_fish_amount(),
                 "Sharks": lambda m: self.get_all_sharks_amount(),
                 "Shoal": lambda m: self.get_all_shoal_amount(),
+                "Pilots": lambda m: self.get_all_pilots_amount(),
             }
         )
 
@@ -90,8 +92,9 @@ class AgentsFactory(Model):
             self.create_new_pilot_fish()
 
     def step(self):
-        self.reproduce_shark()
         self.reproduce_new_shoal()
+        self.reproduce_shark()
+        self.reproduce_pilots()
         self.schedule.step()
         self.datacollector.collect(self)
 
@@ -105,16 +108,28 @@ class AgentsFactory(Model):
         fishes = [x for x in neighs if type(x) is FishShoalAgent and x.fish_amount > 0]
         return len(fishes)
 
+    def get_all_pilots_amount(self):
+        neighs = self.space.get_neighbors([0, 0], 999999, True)
+        fishes = [x for x in neighs if type(x) is PilotFishAgent]
+        return len(fishes)
+
     def get_all_sharks_amount(self):
         neighs = self.space.get_neighbors([0, 0], 999999, True)
         fishes = [x for x in neighs if type(x) is SharkAgent]
         return len(fishes)
 
     def reproduce_shark(self):
-        reproduction_rate = 0.005
+        reproduction_rate = 0.0025
         for _ in range(0, self.get_all_sharks_amount()):
             if random.random() <= reproduction_rate:
                 self.create_new_shark()
+
+
+    def reproduce_pilots(self):
+        reproduction_rate = 0.001
+        for _ in range(0, self.get_all_pilots_amount()):
+            if random.random() <= reproduction_rate:
+                self.create_new_pilot_fish()
 
     def reproduce_new_shoal(self):
         reproduction_rate = 0.005
@@ -130,7 +145,6 @@ class AgentsFactory(Model):
                            model=self,
                            pos=pos,
                            speed=self.shark_speed,
-                           velocity=np.random.random(2) * 2 - 1,
                            blood_vision=self.shark_blood_vision,
                            fish_vision=self.shark_fish_vision)
         self.space.place_agent(shark, pos)

@@ -16,7 +16,6 @@ def get_new_random_velocity(current_velocity, speed):
 
 def get_new_random_position(speed,
                             target_position):
-    print(target_position)
     random_x_point = random.choices(range(int(target_position[0]) - 5, int(target_position[0]) + 10), k=1)[0]
     random_y_point = random.choices(range(int(target_position[1]) - 5, int(target_position[1]) + 10), k=1)[0]
 

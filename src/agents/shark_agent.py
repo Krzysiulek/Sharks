@@ -2,14 +2,15 @@ import numpy as np
 from mesa import Agent
 
 from src.agents.fish_shoal_agent import FishShoalAgent
+from src.agents.pilot_fish_agent import PilotFishAgent
+from src.utils.fish_shoal_utils import get_fish_r
 from src.utils.shark_movement_decision import SharkMovementDecision
 from src.utils.swimming_service import get_new_position_to_object, get_new_random_position
-from src.utils.fish_shoal_utils import get_fish_r
 
-MAX_LIFE_AMOUNT = 100
-HUNGER_LEVEL = 50  # musi się triggerować to coś. Jak < LEVEL wtedy flaga is hungry na true
+MAX_LIFE_AMOUNT = 50
+HUNGER_LEVEL = 25
 ITERATION_LIFE_DECREASE = 1
-EATEN_FISH_LIFE_GAIN = 4
+EATEN_FISH_LIFE_GAIN = 2
 
 
 class SharkAgent(Agent):
@@ -19,34 +20,33 @@ class SharkAgent(Agent):
                  model,
                  pos,
                  speed,
-                 velocity,
                  blood_vision,
                  fish_vision):
         super().__init__(unique_id, model)
         self.pos = np.array(pos)
         self.speed = speed
-        self.velocity = velocity
         self.blood_vision = blood_vision
         self.fish_vision = fish_vision
+        self.pilot_vision = 100
 
         self.life_amount = MAX_LIFE_AMOUNT
         self.hungry = False
 
         self.fish_to_eat = None
         self.prev_position = None
+        self.my_pilots_amount = 0
 
     def step(self):
         self.fish_to_eat = None
         new_pos = self.pos
         self.check_is_hungry()
-
-        if self.is_dead():
-            return
+        self.update_my_pilots()
 
         movement_decision = self.get_movement_decision()
 
         if movement_decision is SharkMovementDecision.EAT_FISH and self.fish_to_eat.fish_amount > 0:
             self.eat_fish()
+            self.give_food_to_all_my_pilots()
         elif movement_decision is SharkMovementDecision.MOVE_TO_BLOOD:
             # płyń do najbliższej krwi
             pass
@@ -60,6 +60,9 @@ class SharkAgent(Agent):
                                               target_position=self.pos)
 
         self.model.space.move_agent(self, new_pos)
+        if self.is_dead():
+            self.model.space.remove_agent(self)
+            self.model.schedule.remove(self)
 
     def get_movement_decision(self):
         is_fish_eatable = False
@@ -82,7 +85,7 @@ class SharkAgent(Agent):
             return SharkMovementDecision.EAT_FISH
         elif self.hungry and is_fish_in_vision:
             return SharkMovementDecision.MOVE_TO_FISH
-        elif self.hungry and is_blood_in_vision and False: # todo
+        elif self.hungry and is_blood_in_vision and False:  # todo
             return SharkMovementDecision.MOVE_TO_BLOOD
         else:
             return SharkMovementDecision.MOVE_RANDOMLY
@@ -91,8 +94,15 @@ class SharkAgent(Agent):
         neighs = self.model.space.get_neighbors(self.pos, vision, False)
         return [x for x in neighs if type(x) is FishShoalAgent and x.fish_amount > 0]
 
+    def get_neighbors_pilots(self, vision):
+        neighs = self.model.space.get_neighbors(self.pos, vision, False)
+        return [x for x in neighs if type(x) is PilotFishAgent]
+
     def check_is_hungry(self):
-        self.life_amount -= ITERATION_LIFE_DECREASE
+        # todo zmniejszaj proporcjonalnie do ilości pilotow
+
+        life_descrease = ITERATION_LIFE_DECREASE - ITERATION_LIFE_DECREASE * self.my_pilots_amount / 5
+        self.life_amount -= max(life_descrease, 0.1)
 
         if self.life_amount < HUNGER_LEVEL:
             self.hungry = True
@@ -101,14 +111,31 @@ class SharkAgent(Agent):
             self.hungry = False
 
     def is_dead(self):
-        if self.life_amount <= 0:
-            self.model.space.remove_agent(self)
-            self.model.schedule.remove(self)
-            return True
-
-        return False
-
+        return self.life_amount <= 0
 
     def eat_fish(self):
         self.life_amount += EATEN_FISH_LIFE_GAIN
         self.fish_to_eat.fish_amount -= 1
+
+    def give_food_to_all_my_pilots(self):
+        # todo
+        pass
+
+    def remove_myself(self):
+        self.model.space.remove_agent(self)
+        self.model.schedule.remove(self)
+
+    def update_my_pilots(self):
+        all_pilots = self.get_neighbors_pilots(self.pilot_vision)
+        non_pilots = [pilot for pilot in all_pilots if pilot.shark_friend_id is None]
+        my_pilots = [pilot for pilot in all_pilots if pilot.shark_friend_id == self.unique_id]
+        self.my_pilots_amount = len(my_pilots)
+
+        ctr = 0
+        for pilot in non_pilots:
+            if ctr >= 5 - len(my_pilots):
+                break
+
+            print("DUPA")
+            pilot.shark_friend_id = self.unique_id
+            ctr += 1
