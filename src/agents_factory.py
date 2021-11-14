@@ -12,6 +12,7 @@ from mesa.space import ContinuousSpace
 from mesa.time import RandomActivation
 import random
 
+from src.agents.blood_agent import BloodAgent
 from src.agents.fish_shoal_agent import FishShoalAgent
 from src.agents.pilot_fish_agent import PilotFishAgent
 from src.agents.shark_agent import SharkAgent
@@ -179,5 +180,14 @@ class AgentsFactory(Model):
                                      pos=pos,
                                      speed=self.pilot_speed,
                                      vision=self.pilot_vision)
+        self.space.place_agent(pilot_agent, pos)
+        self.schedule.add(pilot_agent)
+
+    def create_blood(self, pos):
+        self.unique_id_iterator += 1
+        pilot_agent = BloodAgent(unique_id=self.unique_id_iterator,
+                                 model=self,
+                                 pos=pos,
+                                 radius=1)
         self.space.place_agent(pilot_agent, pos)
         self.schedule.add(pilot_agent)

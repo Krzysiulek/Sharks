@@ -23,6 +23,8 @@ class SharkAgent(Agent):
                  blood_vision,
                  fish_vision):
         super().__init__(unique_id, model)
+        self.model = model
+
         self.pos = np.array(pos)
         self.speed = speed
         self.blood_vision = blood_vision
@@ -113,6 +115,7 @@ class SharkAgent(Agent):
     def eat_fish(self):
         self.life_amount += EATEN_FISH_LIFE_GAIN
         self.fish_to_eat.fish_amount -= 1
+        self.model.create_blood(self.pos)
 
     def remove_myself(self):
         self.model.space.remove_agent(self)
@@ -129,6 +132,5 @@ class SharkAgent(Agent):
             if ctr >= 5 - len(my_pilots):
                 break
 
-            print("DUPA")
             pilot.shark_friend_id = self.unique_id
             ctr += 1

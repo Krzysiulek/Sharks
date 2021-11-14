@@ -4,10 +4,11 @@ from mesa.visualization.modules import ChartModule
 
 from src.agents_factory import AgentsFactory
 from .SimpleContinuousModule import SimpleCanvas
+from .agents.blood_agent import BloodAgent
 from .agents.fish_shoal_agent import FishShoalAgent
 from .agents.pilot_fish_agent import PilotFishAgent
 from .agents.shark_agent import SharkAgent
-from .utils.drawer_utils import pilot_draw, shark_draw, shoal_draw
+from .utils.drawer_utils import pilot_draw, shark_draw, shoal_draw, blood_draw
 
 
 def draw_agent(agent):
@@ -17,6 +18,8 @@ def draw_agent(agent):
         return shark_draw(agent)
     elif type(agent) is PilotFishAgent:
         return pilot_draw(agent)
+    elif type(agent) is BloodAgent:
+        return blood_draw(agent)
 
 
 model_params = {
@@ -42,11 +45,13 @@ model_params = {
 
 boid_canvas = SimpleCanvas(draw_agent, 500, 500)
 fish_chart = ChartModule([{"Label": "Fish", "Color": "#00BFB2"}])
-sharks_chart = ChartModule([{"Label": "Sharks", "Color": "#4D5C9E"}])
+sharks_chart = ChartModule([
+    {"Label": "Sharks", "Color": "#4D5C9E"},
+    {"Label": "Pilots", "Color": "#d12802"}
+])
 shoal_chart = ChartModule([{"Label": "Shoal", "Color": "#00BFB2"}])
-pilots_chart = ChartModule([{"Label": "Pilots", "Color": "#d12802"}])
 
-visualization_elements = [boid_canvas, fish_chart, sharks_chart, shoal_chart, pilots_chart]
+visualization_elements = [boid_canvas, fish_chart, sharks_chart, shoal_chart]
 
 server = ModularServer(model_cls=AgentsFactory,
                        visualization_elements=visualization_elements,

@@ -1,3 +1,4 @@
+from src.agents.blood_agent import MAX_BLOOD_RADIUS
 from src.utils.fish_shoal_utils import get_fish_r
 
 
@@ -20,4 +21,14 @@ def shark_draw(agent):
 
 
 def pilot_draw(agent):
-    return draw_circle(r=1, color="#d12802")
+    return draw_circle(r=1, color="#b202d1")
+
+def blood_draw(agent):
+    color = "#d12802"
+    max_radius = MAX_BLOOD_RADIUS
+    xd = int((max_radius - agent.radius) / max_radius * 255)
+    xd = max(16, xd)
+
+    opacity = str(hex(xd)[2:])
+    print(str(hex(xd)) + " : " + opacity + " : " + str(xd))
+    return draw_circle(r=agent.radius, color=str(color + opacity))
