@@ -1,6 +1,7 @@
 import numpy as np
 from mesa import Agent
 
+from src.agents.blood_agent import BloodAgent
 from src.agents.fish_shoal_agent import FishShoalAgent
 from src.agents.pilot_fish_agent import PilotFishAgent
 from src.utils.fish_shoal_utils import get_fish_r
@@ -31,7 +32,7 @@ class SharkAgent(Agent):
         self.fish_vision = fish_vision
         self.pilot_vision = 100
 
-        self.life_amount = MAX_LIFE_AMOUNT
+        self.life_amount = HUNGER_LEVEL
         self.hungry = False
 
         self.fish_to_eat = None
@@ -49,8 +50,10 @@ class SharkAgent(Agent):
         if movement_decision is SharkMovementDecision.EAT_FISH and self.fish_to_eat.fish_amount > 0:
             self.eat_fish()
         elif movement_decision is SharkMovementDecision.MOVE_TO_BLOOD:
-            # płyń do najbliższej krwi
-            pass
+            nearest_blood = self.get_neighbors_blood(self.blood_vision)[0]
+            new_pos = get_new_position_to_object(speed=self.speed,
+                                                 target_position=self.pos,
+                                                 destination_position=nearest_blood.pos)
         elif movement_decision is SharkMovementDecision.MOVE_TO_FISH:
             nearest_fish = self.get_neighbors_fish(self.fish_vision)[0]
             new_pos = get_new_position_to_object(speed=self.speed,
@@ -80,13 +83,13 @@ class SharkAgent(Agent):
                 break
 
         is_fish_in_vision = len(fish_neighs) > 0
-        is_blood_in_vision = len(self.get_neighbors_fish(self.blood_vision)) > 0
+        is_blood_in_vision = len(self.get_neighbors_blood(self.blood_vision)) > 0
 
         if self.hungry and is_fish_eatable:
             return SharkMovementDecision.EAT_FISH
         elif self.hungry and is_fish_in_vision:
             return SharkMovementDecision.MOVE_TO_FISH
-        elif self.hungry and is_blood_in_vision and False:  # todo
+        elif self.hungry and is_blood_in_vision:  # todo
             return SharkMovementDecision.MOVE_TO_BLOOD
         else:
             return SharkMovementDecision.MOVE_RANDOMLY
@@ -95,13 +98,17 @@ class SharkAgent(Agent):
         neighs = self.model.space.get_neighbors(self.pos, vision, False)
         return [x for x in neighs if type(x) is FishShoalAgent and x.fish_amount > 0]
 
+    def get_neighbors_blood(self, vision):
+        neighs = self.model.space.get_neighbors(self.pos, vision, False)
+        return [x for x in neighs if type(x) is BloodAgent]
+
     def get_neighbors_pilots(self, vision):
         neighs = self.model.space.get_neighbors(self.pos, vision, False)
         return [x for x in neighs if type(x) is PilotFishAgent]
 
     def check_is_hungry(self):
         life_descrease = ITERATION_LIFE_DECREASE - ITERATION_LIFE_DECREASE * self.my_pilots_amount / 5
-        self.life_amount -= max(life_descrease, 0.1)
+        self.life_amount -= max(life_descrease, 0.3)
 
         if self.life_amount < HUNGER_LEVEL:
             self.hungry = True
