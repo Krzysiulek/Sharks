@@ -25,11 +25,11 @@ class AgentsFactory(Model):
                  shoal_min_value=1,
                  shoal_max_value=2,
                  sharks_population=1,
+                 pilots_population=1,
                  shark_speed=1,
                  shark_blood_vision=1,
                  shark_fish_vision=1,
                  pilot_vision=1,
-                 pilots_population=1,
                  width=100,
                  height=100,
                  vision=100,
@@ -66,6 +66,11 @@ class AgentsFactory(Model):
                 "Sharks": lambda m: self.get_all_sharks_amount(),
                 "Shoal": lambda m: self.get_all_shoal_amount(),
                 "Pilots": lambda m: self.get_all_pilots_amount(),
+                "Average_Shark_Life_Amount": lambda m: self.get_average_shark_life(),
+                "Average_Pilot_Life_Amount": lambda m: self.get_average_pilot_life(),
+                "Average_Shark_Life_Lenght": lambda m: self.get_average_shark_life_len(),
+                "Average_Pilot_Life_Lenght": lambda m: self.get_average_pilot_life_len(),
+                "Average_Pilot_Amount_Per_Shark": lambda m: self.get_average_pilot_amount_per_shark(),
             }
         )
 
@@ -119,6 +124,81 @@ class AgentsFactory(Model):
         fishes = [x for x in neighs if type(x) is SharkAgent]
         return len(fishes)
 
+    def get_average_shark_life(self):
+        neighs = self.space.get_neighbors([0, 0], 999999, True)
+        fishes = [x for x in neighs if type(x) is SharkAgent]
+
+        fishes_amount = len(fishes)
+        lifes_amount = 0
+
+        for fish in fishes:
+            lifes_amount += fish.life_amount
+
+        if fishes_amount != 0:
+            return lifes_amount / fishes_amount
+
+        return 0
+
+    def get_average_pilot_life(self):
+        neighs = self.space.get_neighbors([0, 0], 999999, True)
+        fishes = [x for x in neighs if type(x) is PilotFishAgent]
+
+        fishes_amount = len(fishes)
+        lifes_amount = 0
+
+        for fish in fishes:
+            lifes_amount += fish.life_amount
+
+        if fishes_amount != 0:
+            return lifes_amount / fishes_amount
+
+        return 0
+
+    def get_average_shark_life_len(self):
+        neighs = self.space.get_neighbors([0, 0], 999999, True)
+        fishes = [x for x in neighs if type(x) is SharkAgent]
+        fishes_amount = len(fishes)
+
+        lifes_amount = 0
+        for fish in fishes:
+            lifes_amount += fish.age_ctr
+
+
+        if fishes_amount != 0:
+            return lifes_amount / fishes_amount
+
+        return 0
+
+    def get_average_pilot_life_len(self):
+        neighs = self.space.get_neighbors([0, 0], 999999, True)
+        fishes = [x for x in neighs if type(x) is PilotFishAgent]
+        fishes_amount = len(fishes)
+
+        lifes_amount = 0
+        for fish in fishes:
+            lifes_amount += fish.age_ctr
+
+        if fishes_amount != 0:
+            return lifes_amount / fishes_amount
+
+        return 0
+
+
+    def get_average_pilot_amount_per_shark(self):
+        neighs = self.space.get_neighbors([0, 0], 999999, True)
+        fishes = [x for x in neighs if type(x) is SharkAgent]
+
+        fishes_amount = len(fishes)
+        pilots_amount = 0
+
+        for fish in fishes:
+            pilots_amount += fish.my_pilots_amount
+
+        if fishes_amount != 0:
+            return pilots_amount / fishes_amount
+
+        return 0
+
     def reproduce_shark(self):
         reproduction_rate = 0.0025
         for _ in range(0, self.get_all_sharks_amount()):
@@ -158,7 +238,7 @@ class AgentsFactory(Model):
         pos = np.array((x, y))
         velocity = np.random.random(2) * 2 - 1
         fish_amount = np.random.randint(low=self.shoal_min_value, high=self.shoal_max_value, size=1)[0]
-        # todo wywalic factors
+
         shoal_agent = FishShoalAgent(self.unique_id_iterator,
                                      self,
                                      pos,
@@ -188,6 +268,7 @@ class AgentsFactory(Model):
         pilot_agent = BloodAgent(unique_id=self.unique_id_iterator,
                                  model=self,
                                  pos=pos,
+                                 max_radius=self.shark_blood_vision,
                                  radius=1)
         self.space.place_agent(pilot_agent, pos)
         self.schedule.add(pilot_agent)

@@ -1,24 +1,23 @@
 import numpy as np
 from mesa import Agent
 
-MAX_BLOOD_RADIUS = 50
-
-
 class BloodAgent(Agent):
 
     def __init__(self,
                  unique_id,
                  model,
                  pos,
+                 max_radius,
                  radius=1):
         super().__init__(unique_id, model)
         self.pos = np.array(pos)
         self.radius = radius
+        self.max_blood_radius = max_radius
 
     def step(self):
-        self.radius += 1
+        self.radius += self.max_blood_radius / 10
 
-        if self.radius >= MAX_BLOOD_RADIUS:
+        if self.radius >= self.max_blood_radius:
             self.remove_myself()
 
     def remove_myself(self):

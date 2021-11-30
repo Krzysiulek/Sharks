@@ -1,4 +1,3 @@
-from src.agents.blood_agent import MAX_BLOOD_RADIUS
 from src.utils.fish_shoal_utils import get_fish_r
 
 
@@ -25,7 +24,7 @@ def pilot_draw(agent):
 
 def blood_draw(agent):
     color = "#d12802"
-    max_radius = MAX_BLOOD_RADIUS
+    max_radius = agent.max_blood_radius + 1
     xd = int((max_radius - agent.radius) / max_radius * 255)
     xd = max(16, xd)
 

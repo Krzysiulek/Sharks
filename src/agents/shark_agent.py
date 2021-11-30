@@ -38,8 +38,13 @@ class SharkAgent(Agent):
         self.fish_to_eat = None
         self.prev_position = None
         self.my_pilots_amount = 0
+        self.my_pilots = []
+
+        self.age_ctr = 0
 
     def step(self):
+        self.age_ctr += 1
+
         self.fish_to_eat = None
         new_pos = self.pos
         self.check_is_hungry()
@@ -89,7 +94,7 @@ class SharkAgent(Agent):
             return SharkMovementDecision.EAT_FISH
         elif self.hungry and is_fish_in_vision:
             return SharkMovementDecision.MOVE_TO_FISH
-        elif self.hungry and is_blood_in_vision:  # todo
+        elif self.hungry and is_blood_in_vision:
             return SharkMovementDecision.MOVE_TO_BLOOD
         else:
             return SharkMovementDecision.MOVE_RANDOMLY
@@ -124,6 +129,9 @@ class SharkAgent(Agent):
         self.fish_to_eat.fish_amount -= 1
         self.model.create_blood(self.pos)
 
+        for pilot in self.my_pilots:
+            pilot.life_amount += 1
+
     def remove_myself(self):
         self.model.space.remove_agent(self)
         self.model.schedule.remove(self)
@@ -134,10 +142,13 @@ class SharkAgent(Agent):
         my_pilots = [pilot for pilot in all_pilots if pilot.shark_friend_id == self.unique_id]
         self.my_pilots_amount = len(my_pilots)
 
+        self.my_pilots = []
+
         ctr = 0
         for pilot in non_pilots:
             if ctr >= 5 - len(my_pilots):
                 break
 
             pilot.shark_friend_id = self.unique_id
+            self.my_pilots.append(pilot)
             ctr += 1
